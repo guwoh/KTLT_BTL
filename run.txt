@@ -1,0 +1,11 @@
+ubuntu:
+g++ book.cpp borrowableBook.cpp library.cpp main.cpp -o run
+
+./run
+
+
+windown:
+g++ book.cpp borrowableBook.cpp library.cpp main.cpp -o r.exe
+
+./r (terminal)
+./r.exe (vscode)
