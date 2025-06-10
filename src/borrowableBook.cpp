@@ -69,4 +69,26 @@ BorrowableBook BorrowableBook::readBinary(std::ifstream& in) {
     }
     
     return book;
+}
+
+bool BorrowableBook::isAvailable() const {
+    return getQuantity() > 0;
+}
+
+std::string BorrowableBook::getBorrower() const {
+    for (auto it = borrowSlips.rbegin(); it != borrowSlips.rend(); ++it) {
+        if (!it->isBookReturned()) {
+            return it->getBorrowerName();
+        }
+    }
+    return "";
+}
+
+std::string BorrowableBook::getBorrowDate() const {
+    for (auto it = borrowSlips.rbegin(); it != borrowSlips.rend(); ++it) {
+        if (!it->isBookReturned()) {
+            return it->getBorrowDate();
+        }
+    }
+    return "";
 } 

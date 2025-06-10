@@ -82,6 +82,10 @@ int BorrowSlip::getBookId() const {
     return bookId;
 }
 
+int BorrowSlip::getId() const {
+    return bookId;
+}
+
 std::string BorrowSlip::getBorrowerName() const {
     return borrowerName;
 }

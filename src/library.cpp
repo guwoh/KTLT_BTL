@@ -1,16 +1,15 @@
 // ===== library.cpp =====
 #include "../include/library.h"
+#include "../include/io.h"
 #include <iostream>
-#include <fstream>
 #include <algorithm>
 
-Library::Library(const std::string& filename) : dataFile(filename) {
-    loadFromFile();
+Library::Library() {
+    // Không cần tham số filename nữa vì đã chuyển sang class IO
 }
 
 void Library::addBook(const BorrowableBook& book) {
     books.push_back(book);
-    saveToFile();
 }
 
 void Library::displayAllBooks() const {
@@ -48,11 +47,7 @@ std::vector<BorrowableBook> Library::searchByAuthor(const std::string& author) c
 bool Library::borrowBook(int bookId, const std::string& borrowerName, const std::string& borrowDate) {
     for (auto& book : books) {
         if (book.getId() == bookId) {
-            if (book.borrowBook(borrowerName, borrowDate)) {
-                saveToFile();
-                return true;
-            }
-            return false;
+            return book.borrowBook(borrowerName, borrowDate);
         }
     }
     return false;
@@ -61,43 +56,12 @@ bool Library::borrowBook(int bookId, const std::string& borrowerName, const std:
 bool Library::returnBook(int bookId, const std::string& returnDate) {
     for (auto& book : books) {
         if (book.getId() == bookId) {
-            if (book.returnBook(bookId, returnDate)) {
-                saveToFile();
-                return true;
-            }
-            return false;
+            return book.returnBook(bookId, returnDate);
         }
     }
     return false;
 }
 
-void Library::saveToFile() const {
-    std::ofstream out(dataFile, std::ios::binary);
-    if (!out) {
-        std::cerr << "Error opening file for writing: " << dataFile << std::endl;
-        return;
-    }
-    
-    size_t numBooks = books.size();
-    out.write(reinterpret_cast<const char*>(&numBooks), sizeof(numBooks));
-    
-    for (const auto& book : books) {
-        book.writeBinary(out);
-    }
-}
-
-void Library::loadFromFile() {
-    std::ifstream in(dataFile, std::ios::binary);
-    if (!in) {
-        std::cerr << "Error opening file for reading: " << dataFile << std::endl;
-        return;
-    }
-    
-    size_t numBooks;
-    in.read(reinterpret_cast<char*>(&numBooks), sizeof(numBooks));
-    
-    books.clear();
-    for (size_t i = 0; i < numBooks; ++i) {
-        books.push_back(BorrowableBook::readBinary(in));
-    }
+const std::vector<BorrowableBook>& Library::getAllBooks() const {
+    return books;
 }

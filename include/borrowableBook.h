@@ -4,6 +4,7 @@
 #include "book.h"
 #include <vector>
 #include "borrowSlip.h"
+#include <limits>
 
 class BorrowableBook : public Book {
 private:
@@ -25,6 +26,11 @@ public:
     std::string toText() const override;
     void writeBinary(std::ofstream& out) const override;
     static BorrowableBook readBinary(std::ifstream& in);
+
+    // Getter cho xuất file text
+    bool isAvailable() const; // true nếu còn sách
+    std::string getBorrower() const; // trả về tên người mượn gần nhất chưa trả
+    std::string getBorrowDate() const; // trả về ngày mượn gần nhất chưa trả
 };
 
 #endif 

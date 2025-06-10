@@ -22,6 +22,7 @@ public:
     
     // Getters
     int getBookId() const;
+    int getId() const;
     std::string getBorrowerName() const;
     std::string getBorrowDate() const;
     std::string getReturnDate() const;

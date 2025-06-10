@@ -2,8 +2,9 @@
 #define BOOK_H
 
 #include <string>
+// use for string stream
 #include <fstream>
-
+// use for binary file
 class Book {
 protected:
     int id;
@@ -22,6 +23,13 @@ public:
     int getQuantity() const;
     
     // Setters
+    // set id
+    void setId(int newId);
+    // set title
+    void setTitle(const std::string& newTitle);
+    // set author
+    void setAuthor(const std::string& newAuthor);
+    // set quantity
     void setQuantity(int newQuantity);
     
     // Display
@@ -29,6 +37,7 @@ public:
     
     // File operations
     virtual std::string toText() const;
+    // reader and borrow
     virtual void writeBinary(std::ofstream& out) const;
     static Book readBinary(std::ifstream& in);
 };
