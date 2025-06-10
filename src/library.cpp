@@ -2,100 +2,102 @@
 #include "../include/library.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
-// === Book functions ===
-void Library::loadBooks(const std::string& binPath) {
-    books.clear();
-    std::ifstream bin(binPath, std::ios::binary);
-    while (bin.peek() != EOF) {
-        books.push_back(Book::readBinary(bin));
-    }
-    bin.close();
+Library::Library(const std::string& filename) : dataFile(filename) {
+    loadFromFile();
 }
 
-void Library::saveBooks(const std::string& txtPath, const std::string& binPath) const {
-    std::ofstream txt(txtPath);
-    std::ofstream bin(binPath, std::ios::binary);
-    for (const auto& b : books) {
-        txt << b.toText() << "\n";
-        b.writeBinary(bin);
-    }
-    txt.close();
-    bin.close();
-}
-
-void Library::addBook(const Book& book) {
+void Library::addBook(const BorrowableBook& book) {
     books.push_back(book);
+    saveToFile();
 }
 
-void Library::viewBooks() const {
-    for (const auto& b : books) b.display();
+void Library::displayAllBooks() const {
+    if (books.empty()) {
+        std::cout << "No books in the library.\n";
+        return;
+    }
+    
+    for (const auto& book : books) {
+        book.display();
+        std::cout << "===================\n";
+    }
 }
 
-void Library::searchByTitle(const std::string& title) const {
-    for (const auto& b : books) {
-        if (b.getTitle().find(title) != std::string::npos) {
-            b.display();
+std::vector<BorrowableBook> Library::searchByTitle(const std::string& title) const {
+    std::vector<BorrowableBook> results;
+    for (const auto& book : books) {
+        if (book.getTitle().find(title) != std::string::npos) {
+            results.push_back(book);
         }
     }
+    return results;
 }
 
-void Library::searchByAuthor(const std::string& author) const {
-    for (const auto& b : books) {
-        if (b.getAuthor().find(author) != std::string::npos) {
-            b.display();
+std::vector<BorrowableBook> Library::searchByAuthor(const std::string& author) const {
+    std::vector<BorrowableBook> results;
+    for (const auto& book : books) {
+        if (book.getAuthor().find(author) != std::string::npos) {
+            results.push_back(book);
         }
     }
+    return results;
 }
 
-// === BorrowSlip functions ===
-void Library::loadSlips(const std::string& binPath) {
-    slips.clear();
-    std::ifstream bin(binPath, std::ios::binary);
-    while (bin.peek() != EOF) {
-        slips.push_back(BorrowSlip::readBinary(bin));
-    }
-    bin.close();
-}
-
-void Library::saveSlips(const std::string& txtPath, const std::string& binPath) const {
-    std::ofstream txt(txtPath);
-    std::ofstream bin(binPath, std::ios::binary);
-    for (const auto& s : slips) {
-        txt << s.toText() << "\n";
-        s.writeBinary(bin);
-    }
-    txt.close();
-    bin.close();
-}
-
-void Library::borrowBook(int bookId, const std::string& name, const std::string& borrowDate) {
-    for (auto& b : books) {
-        if (b.getId() == bookId) {
-            if (b.decreaseQuantity()) {
-                slips.emplace_back(bookId, name, borrowDate, "");
-                std::cout << "Borrowed successfully.\n";
-            } else {
-                std::cout << "Book out of stock.\n";
+bool Library::borrowBook(int bookId, const std::string& borrowerName, const std::string& borrowDate) {
+    for (auto& book : books) {
+        if (book.getId() == bookId) {
+            if (book.borrowBook(borrowerName, borrowDate)) {
+                saveToFile();
+                return true;
             }
-            return;
+            return false;
         }
     }
-    std::cout << "Book not found.\n";
+    return false;
 }
 
-void Library::returnBook(int bookId, const std::string& returnDate) {
-    for (auto& slip : slips) {
-        if (slip.toText().find(std::to_string(bookId)) != std::string::npos && slip.toText().find(",,") != std::string::npos) {
-            slip = BorrowSlip(bookId, slip.toText().substr(2, slip.toText().find(",", 2)), slip.toText().substr(slip.toText().find(",", 2) + 1, 10), returnDate);
-            break;
+bool Library::returnBook(int bookId, const std::string& returnDate) {
+    for (auto& book : books) {
+        if (book.getId() == bookId) {
+            if (book.returnBook(bookId, returnDate)) {
+                saveToFile();
+                return true;
+            }
+            return false;
         }
     }
-    for (auto& b : books) {
-        if (b.getId() == bookId) {
-            b.increaseQuantity();
-            break;
-        }
+    return false;
+}
+
+void Library::saveToFile() const {
+    std::ofstream out(dataFile, std::ios::binary);
+    if (!out) {
+        std::cerr << "Error opening file for writing: " << dataFile << std::endl;
+        return;
     }
-    std::cout << "Returned successfully.\n";
+    
+    size_t numBooks = books.size();
+    out.write(reinterpret_cast<const char*>(&numBooks), sizeof(numBooks));
+    
+    for (const auto& book : books) {
+        book.writeBinary(out);
+    }
+}
+
+void Library::loadFromFile() {
+    std::ifstream in(dataFile, std::ios::binary);
+    if (!in) {
+        std::cerr << "Error opening file for reading: " << dataFile << std::endl;
+        return;
+    }
+    
+    size_t numBooks;
+    in.read(reinterpret_cast<char*>(&numBooks), sizeof(numBooks));
+    
+    books.clear();
+    for (size_t i = 0; i < numBooks; ++i) {
+        books.push_back(BorrowableBook::readBinary(in));
+    }
 }

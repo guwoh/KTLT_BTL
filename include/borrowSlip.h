@@ -1,5 +1,5 @@
-#ifndef BORROW_SLIP_H
-#define BORROW_SLIP_H
+#ifndef BORROWSLIP_H
+#define BORROWSLIP_H
 
 #include <string>
 #include <fstream>
@@ -10,26 +10,29 @@ private:
     std::string borrowerName;
     std::string borrowDate;
     std::string returnDate;
+    bool isReturned;
 
 public:
     // Constructors
-    BorrowSlip(int id, const std::string& name, const std::string& bDate);
-    BorrowSlip(int id, const std::string& name, const std::string& bDate, const std::string& rDate);
-
-    // Behavior
+    BorrowSlip(int bookId, const std::string& name, const std::string& bDate);
+    
+    // Operations
     void returnBook(const std::string& rDate);
-    void display() const;
-
-    // Export
-    std::string toText() const;
-    void writeBinary(std::ofstream& out) const;
-    static BorrowSlip readBinary(std::ifstream& in);
-
-    // Getter
+    bool isBookReturned() const;
+    
+    // Getters
     int getBookId() const;
     std::string getBorrowerName() const;
     std::string getBorrowDate() const;
     std::string getReturnDate() const;
+    
+    // Display
+    void display() const;
+    
+    // File operations
+    std::string toText() const;
+    void writeBinary(std::ofstream& out) const;
+    static BorrowSlip readBinary(std::ifstream& in);
 };
 
 #endif
