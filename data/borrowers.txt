@@ -1,0 +1,12 @@
+=== DANH SACH NGUOI MUON ===
+Sach ID: 1
+Ten sach: giai tich
+  Nguoi muon: hiep
+  Ngay muon: 2222-22-22
+  Trang thai: Da tra
+  Ngay tra: 3333-33-33
+  -------------------
+-------------------
+Sach ID: 2
+Ten sach: vat ly
+-------------------

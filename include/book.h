@@ -33,13 +33,7 @@ public:
     void setQuantity(int newQuantity);
     
     // Display
-    virtual void display() const;
-    
-    // File operations
-    virtual std::string toText() const;
-    // reader and borrow
-    virtual void writeBinary(std::ofstream& out) const;
-    static Book readBinary(std::ifstream& in);
+    virtual void display() const;  //override
 };
 
 #endif

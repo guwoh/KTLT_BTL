@@ -20,8 +20,9 @@ public:
     bool borrowBook(int bookId, const std::string& borrowerName, const std::string& borrowDate);
     bool returnBook(int bookId, const std::string& returnDate);
     
-    // Thêm getter để class IO có thể truy cập danh sách sách
-    const std::vector<BorrowableBook>& getAllBooks() const;
+    // Thêm các hàm mới
+    size_t getBookCount() const { return books.size(); }
+    const std::vector<BorrowableBook>& getAllBooks() const { return books; }
 };
 
 #endif

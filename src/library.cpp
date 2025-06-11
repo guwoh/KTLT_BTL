@@ -1,26 +1,18 @@
 // ===== library.cpp =====
 #include "../include/library.h"
-#include "../include/io.h"
 #include <iostream>
 #include <algorithm>
 
-Library::Library() {
-    // Không cần tham số filename nữa vì đã chuyển sang class IO
-}
+Library::Library() {}
 
 void Library::addBook(const BorrowableBook& book) {
     books.push_back(book);
 }
 
 void Library::displayAllBooks() const {
-    if (books.empty()) {
-        std::cout << "No books in the library.\n";
-        return;
-    }
-    
     for (const auto& book : books) {
         book.display();
-        std::cout << "===================\n";
+        std::cout << "-------------------\n";
     }
 }
 
@@ -56,12 +48,8 @@ bool Library::borrowBook(int bookId, const std::string& borrowerName, const std:
 bool Library::returnBook(int bookId, const std::string& returnDate) {
     for (auto& book : books) {
         if (book.getId() == bookId) {
-            return book.returnBook(bookId, returnDate);
+            return book.returnBook(returnDate);
         }
     }
     return false;
-}
-
-const std::vector<BorrowableBook>& Library::getAllBooks() const {
-    return books;
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 
 // Hàm nhập số nguyên an toàn
 int getInt(const std::string& prompt) {
@@ -90,60 +91,65 @@ void searchBooks(const Library& lib) {
     }
 }
 
-void borrowBook(Library& lib, std::vector<BorrowSlip>& slips) {
+void borrowBook(Library& lib) {
     int bookId = getInt("Enter book ID: ");
     std::string borrowerName = getString("Enter borrower name: ");
     std::string borrowDate = getDate("Enter borrow date (YYYY-MM-DD): ");
     
     if (lib.borrowBook(bookId, borrowerName, borrowDate)) {
-        slips.emplace_back(bookId, borrowerName, borrowDate);
         std::cout << "Book borrowed successfully.\n";
     } else {
         std::cout << "Failed to borrow book. Book may not exist or be out of stock.\n";
     }
 }
 
-void returnBook(Library& lib, std::vector<BorrowSlip>& slips) {
+void returnBook(Library& lib) {
     int bookId = getInt("Enter book ID: ");
     std::string returnDate = getDate("Enter return date (YYYY-MM-DD): ");
     
     if (lib.returnBook(bookId, returnDate)) {
-        // Tìm phiếu mượn chưa trả và cập nhật ngày trả
-        for (auto& slip : slips) {
-            if (slip.getBookId() == bookId && !slip.isBookReturned()) {
-                slip.returnBook(returnDate);
-                break;
-            }
-        }
         std::cout << "Book returned successfully.\n";
     } else {
         std::cout << "Failed to return book. Book may not exist or not be borrowed.\n";
     }
 }
 
+void displayBorrowHistory(const Library& lib) {
+    std::cout << "\n=== Borrow History ===\n";
+    lib.displayAllBooks();
+}
+
 int main() {
     Library lib;
-    std::vector<BorrowSlip> slips;
-    IO::loadData(lib, slips);
     std::vector<std::string> mainOptions = {
         "Add new book",
         "View all books",
         "Search books",
         "Borrow a book",
-        "Return a book"
+        "Return a book",
+        "View borrow history"
     };
+    
+    // Đọc dữ liệu khi khởi động
+    if (!IO::loadData(lib)) {
+        std::cout << "Failed to load data. Starting with empty library.\n";
+    }
     
     while (true) {
         int choice = getMenuChoice("Library Management System", mainOptions);
         
         switch (choice) {
             case 0:
-                IO::saveData(lib, slips);
+                // Lưu dữ liệu trước khi thoát
+                if (IO::saveData(lib)) {
+                    std::cout << "Data saved successfully.\n";
+                } else {
+                    std::cout << "Failed to save data.\n";
+                }
                 std::cout << "Goodbye!\n";
                 return 0;
             case 1:
                 addBook(lib);
-                IO::saveData(lib, slips);
                 break;
             case 2:
                 lib.displayAllBooks();
@@ -152,12 +158,13 @@ int main() {
                 searchBooks(lib);
                 break;
             case 4:
-                borrowBook(lib, slips);
-                IO::saveData(lib, slips);
+                borrowBook(lib);
                 break;
             case 5:
-                returnBook(lib, slips);
-                IO::saveData(lib, slips);
+                returnBook(lib);
+                break;
+            case 6:
+                displayBorrowHistory(lib);
                 break;
             default:
                 std::cout << "Invalid choice. Please try again.\n";

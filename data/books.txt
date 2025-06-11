@@ -1,0 +1,11 @@
+=== DANH SACH SACH ===
+ID: 1
+Ten sach: giai tich
+Tac gia: fami
+So luong: 100
+-------------------
+ID: 2
+Ten sach: vat ly
+Tac gia: co hang
+So luong: 100
+-------------------

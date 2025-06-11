@@ -5,19 +5,19 @@ BorrowableBook::BorrowableBook(int id, const std::string& title, const std::stri
     : Book(id, title, author, quantity) {}
 
 bool BorrowableBook::borrowBook(const std::string& borrowerName, const std::string& borrowDate) {
-    if (getQuantity() > 0) {
-        borrowSlips.emplace_back(getId(), borrowerName, borrowDate);
-        setQuantity(getQuantity() - 1);
+    if (quantity > 0) {
+        quantity--;
+        borrowSlips.emplace_back(id, borrowerName, borrowDate);
         return true;
     }
     return false;
 }
 
-bool BorrowableBook::returnBook(int bookId, const std::string& returnDate) {
+bool BorrowableBook::returnBook(const std::string& returnDate) {
     for (auto& slip : borrowSlips) {
-        if (slip.getBookId() == bookId && !slip.isBookReturned()) {
+        if (!slip.isBookReturned()) {
             slip.returnBook(returnDate);
-            setQuantity(getQuantity() + 1);
+            quantity++;
             return true;
         }
     }
@@ -26,69 +26,12 @@ bool BorrowableBook::returnBook(int bookId, const std::string& returnDate) {
 
 void BorrowableBook::display() const {
     Book::display();
-    std::cout << "Borrow History:\n";
-    displayBorrowHistory();
-}
-
-void BorrowableBook::displayBorrowHistory() const {
+    std::cout << "Borrow history:\n";
     for (const auto& slip : borrowSlips) {
         slip.display();
-        std::cout << "-------------------\n";
     }
 }
 
-std::string BorrowableBook::toText() const {
-    std::string result = Book::toText() + "\nBorrow History:\n";
-    for (const auto& slip : borrowSlips) {
-        result += slip.toText() + "\n";
-    }
-    return result;
-}
-
-void BorrowableBook::writeBinary(std::ofstream& out) const {
-    Book::writeBinary(out);
-    
-    size_t numSlips = borrowSlips.size();
-    out.write(reinterpret_cast<const char*>(&numSlips), sizeof(numSlips));
-    
-    for (const auto& slip : borrowSlips) {
-        slip.writeBinary(out);
-    }
-}
-
-BorrowableBook BorrowableBook::readBinary(std::ifstream& in) {
-    Book baseBook = Book::readBinary(in);
-    BorrowableBook book(baseBook.getId(), baseBook.getTitle(), 
-                       baseBook.getAuthor(), baseBook.getQuantity());
-    
-    size_t numSlips;
-    in.read(reinterpret_cast<char*>(&numSlips), sizeof(numSlips));
-    
-    for (size_t i = 0; i < numSlips; ++i) {
-        book.borrowSlips.push_back(BorrowSlip::readBinary(in));
-    }
-    
-    return book;
-}
-
-bool BorrowableBook::isAvailable() const {
-    return getQuantity() > 0;
-}
-
-std::string BorrowableBook::getBorrower() const {
-    for (auto it = borrowSlips.rbegin(); it != borrowSlips.rend(); ++it) {
-        if (!it->isBookReturned()) {
-            return it->getBorrowerName();
-        }
-    }
-    return "";
-}
-
-std::string BorrowableBook::getBorrowDate() const {
-    for (auto it = borrowSlips.rbegin(); it != borrowSlips.rend(); ++it) {
-        if (!it->isBookReturned()) {
-            return it->getBorrowDate();
-        }
-    }
-    return "";
+void BorrowableBook::addBorrowSlip(const BorrowSlip& slip) {
+    borrowSlips.push_back(slip);
 } 

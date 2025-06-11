@@ -16,21 +16,21 @@ public:
     
     // Borrowing operations
     bool borrowBook(const std::string& borrowerName, const std::string& borrowDate);
-    bool returnBook(int bookId, const std::string& returnDate);
+    bool returnBook(const std::string& returnDate);
     
     // Display
     void display() const override;
     void displayBorrowHistory() const;
-    
-    // File operations
-    std::string toText() const override;
-    void writeBinary(std::ofstream& out) const override;
-    static BorrowableBook readBinary(std::ifstream& in);
 
     // Getter cho xuất file text
     bool isAvailable() const; // true nếu còn sách
     std::string getBorrower() const; // trả về tên người mượn gần nhất chưa trả
     std::string getBorrowDate() const; // trả về ngày mượn gần nhất chưa trả
+    
+    // Thêm các hàm mới
+    size_t getBorrowSlipCount() const { return borrowSlips.size(); }
+    const std::vector<BorrowSlip>& getBorrowSlips() const { return borrowSlips; }
+    void addBorrowSlip(const BorrowSlip& slip);
 };
 
 #endif 

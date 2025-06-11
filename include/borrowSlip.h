@@ -2,7 +2,6 @@
 #define BORROWSLIP_H
 
 #include <string>
-#include <fstream>
 
 class BorrowSlip {
 private:
@@ -22,18 +21,12 @@ public:
     
     // Getters
     int getBookId() const;
-    int getId() const;
     std::string getBorrowerName() const;
     std::string getBorrowDate() const;
     std::string getReturnDate() const;
     
     // Display
     void display() const;
-    
-    // File operations
-    std::string toText() const;
-    void writeBinary(std::ofstream& out) const;
-    static BorrowSlip readBinary(std::ifstream& in);
 };
 
 #endif
